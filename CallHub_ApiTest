@@ -1,0 +1,55 @@
+package resources;
+
+import static io.restassured.RestAssured.given;
+
+import java.util.HashMap;
+
+import org.json.JSONObject;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
+
+public class CallHub_ApiTest extends ApiCommon {
+	@Test
+	public void PostData() {
+		String value1 = "PhoneBookName";
+		String value2 = "PhoneBookDescription";
+		String payLoad = String.format("{'name':'%s','description':'%s'}", value1, value2).replace("'", "\"");
+		RequestSpecification requestSpecification = given().baseUri("https://app.callhub.io");
+		requestSpecification.basePath("/v1/phonebooks/");
+		HashMap<String, String> headers = new HashMap<String, String>();
+		headers.put("Authorization", "Token b18c3bba9fe0603c9d594e0a1ce0981f894d8b29");
+		headers.put("Content-Type", "application/json");
+		requestSpecification.headers(headers);
+		requestSpecification.body(payLoad);
+		Response response = requestSpecification.post();
+		Assert.assertEquals(response.getStatusCode(), 201);
+		String responseBody = response.getBody().asString();
+		System.out.println(responseBody);
+		JSONObject jsonObject = new JSONObject(responseBody);
+		int phonebookId = jsonObject.getInt("id");
+		System.out.println("Phone Book ID " + phonebookId);
+	}
+
+	@Test
+	public void putTest() {
+		String value1 = "PhoneBookName";
+		String value2 = "EditedPhoneBookDescription";
+		String payLoad = String.format("{'name':'%s','description':'%s'}", value1, value2).replace("'", "\"");
+		RequestSpecification requestSpecification = buildUrl("/v1/phonebooks/2143456618078013291/");
+		requestSpecification.body(payLoad);
+		Response response = requestSpecification.put();
+		String responseBody = response.getBody().asString();
+
+	}
+
+	@Test
+	public void GetTest() {
+		RequestSpecification requestSpecification = buildUrl("/v1/phonebooks/2143456618078013291/contacts");
+		Response response = requestSpecification.get();
+		String responseBody = response.getBody().asString();
+
+	}
+}
